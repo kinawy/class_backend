@@ -24,7 +24,7 @@ class Teacher(models.Model):
 
 class Assignment(models.Model):
     name = models.CharField(max_length=50)
-    assUrl = models.CharField(max_length=100)
+    url = models.CharField(max_length=100)
     description = models.CharField(max_length=200)
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
 
@@ -44,8 +44,8 @@ class Class(models.Model):
 
 class StudentsClasses(models.Model):
     classes = models.ForeignKey(Class, on_delete=models.CASCADE)
-    students = models.ForeignKey(Student, on_delete=models.CASCADE)
-    
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+
 class ClassesAssignments(models.Model):
     classes = models.ForeignKey(Class, on_delete=models.CASCADE)
-    assignments = models.ForeignKey(Assignment, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
