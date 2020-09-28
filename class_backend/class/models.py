@@ -2,25 +2,23 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    is_teacher = models.BooleanField()
-    name = models.CharField(max_length=50)
-    email = models.EmailField(max_length=100)
+    is_teacher = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.name
+        return self.first_name + ' ' + self.last_name
 
 class Student(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     
     def __str__(self):
-        return self.user.name
+        return self.user.first_name + ' ' + self.user.last_name
 
 
 class Teacher(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.user.name
+        return self.user.first_name + ' ' + self.user.last_name
 
 class Assignment(models.Model):
     name = models.CharField(max_length=50)
@@ -35,17 +33,23 @@ class GradedAssignments(models.Model):
     note = models.CharField(max_length=500)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    grade = models.IntegerField(max_length=3)
+    grade = models.IntegerField()
 
-class Class(models.Model):
+    def __str__(self):
+        return self.note + ' - ' + str(self.grade)
+
+class Classroom(models.Model):
     name = models.CharField(max_length=50)
-    gradeLevel = models.IntegerField(max_length=2)
+    gradeLevel = models.IntegerField()
     teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
 
-class StudentsClasses(models.Model):
-    classes = models.ForeignKey(Class, on_delete=models.CASCADE)
+    def __str__(self):
+        return self.name + ' - ' + str(self.gradeLevel) + ' - ' + self.teacher.user.first_name + ' ' + self.teacher.user.last_name
+
+class StudentsClassrooms(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
 
-class ClassesAssignments(models.Model):
-    classes = models.ForeignKey(Class, on_delete=models.CASCADE)
+class ClassroomsAssignments(models.Model):
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE)
