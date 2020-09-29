@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders', 
-    'class',
+    'main_app',
+    # 'main_app.apps.MainAppConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -133,4 +134,4 @@ CORS_ORIGIN_WHITELIST = [
      'https://localhost:3000'
  ]
 
-AUTH_USER_MODEL = 'class.User'
+AUTH_USER_MODEL = 'main_app.User'
