@@ -40,7 +40,10 @@ urlpatterns += format_suffix_patterns([
     url(r'^api/teacher/$',
         views.TeacherRecordView.as_view(),
         name='teachers_list'),
-    url(r'^api/user/$',
+    url(r'^api/user/(?P<pk>[0-9]+)/',
         views.UserRecordView.as_view(),
-        name='users_list'),
+        name='user_list'),
+    url(r'^api/users/$',
+        views.UsersRecordView.as_view(),
+        name='users_list'), 
 ])
