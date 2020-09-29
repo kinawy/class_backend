@@ -1,9 +1,11 @@
 from django.shortcuts import render
 from rest_framework import viewsets, status
-from .serializers import UserSerializer, TeacherSerializer, StudentSerializer
-from .models import User, Teacher, Student
+from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer
+from .models import User, Teacher, Student, Classroom
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from django.http import JsonResponse
 
 # Create your views here.
 
@@ -50,23 +52,102 @@ class StudentRecordView(APIView):
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 
 class UserRecordView(APIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except:
+            return None
+
+    def get(self, request, pk, format=None):
+        user = self.get_object(pk)
+        if not user:
+            return JsonResponse({'status': 0, 'message': 'User with this id not found'})
+        serializer = UserSerializer(user)
+        return JsonResponse(serializer.data, safe=False)
+
+    def put(self, request, pk, format=None):
+        user = self.get_object(pk)
+        serializer = UsersSerializer(user, data=request.data)
+        if serializer.is_valid():
+
+            email = request.data.get("email", None)
+            first_name = request.data.get('first_name', None)
+            last_name = request.data.get('last_name', None)
+            username = request.data.get('username', None)
+            password = request.data.get('password', None)
+
+            user.email = email
+            user.first_name = first_name
+            user.last_name = last_name
+            user.username = username
+            user.password = password
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+
+class UsersRecordView(APIView):
 
     # A class based view for creating and fetching teacher records
 
     def get(self, format=None):
-
         # Get all the teacher records
         users = User.objects.all()
-        serializer = UserSerializer(users, many=True)
+        serializer = UsersSerializer(users, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
 
         # Create a teacher
-        serializer = UserSerializer(data=request.data)
+        serializer = UsersSerializer(data=request.data)
         # print(serializer)
         if serializer.is_valid(raise_exception=ValueError):
             # print(serializer)
             serializer.create(validated_data=request.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+
+class ClassroomRecordView(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Classroom.objects.get(pk=pk)
+        except:
+            return None
+
+    def get(self, request, pk, format=None):
+        classroom = self.get_object(pk)
+        if not classroom:
+            return JsonResponse({'status': 0, 'message': 'Classroom with this id not found'})
+        serializer = ClassroomSerializer(classroom)
+        return JsonResponse(serializer.data, safe=False)
+
+    def put(self, request, pk, format=None):
+        classroom = self.get_object(pk)
+        serializer = ClassroomsSerializer(classroom, data=request.data)
+        if serializer.is_valid():
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+            
+class ClassroomsRecordView(APIView):
+    def get(self, format=None):
+        # Get all the teacher records
+        classrooms = Classroom.objects.all()
+        serializer = ClassroomsSerializer(classrooms, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+
+        # Create a classroom
+        serializer = ClassroomsSerializer(data=request.data)
+        # print(serializer)
+        if serializer.is_valid(raise_exception=ValueError):
+            # print(serializer)
+            serializer.create(validated_data=request.data)
+            print(request.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
