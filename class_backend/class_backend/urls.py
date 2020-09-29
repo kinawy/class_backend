@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-
+from rest_framework_jwt.views import obtain_jwt_token
 from django.urls import path, include
 from rest_framework import routers
 from django.conf.urls import *
@@ -29,9 +29,13 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls',
                               namespace='rest_framework')),
+    path('token-auth/', obtain_jwt_token)
 ]
 
 urlpatterns += format_suffix_patterns([
+    url(r'^api/student/$',
+        views.StudentRecordView.as_view(),
+        name='student_list'),
     url(r'^api/teacher/$',
         views.TeacherRecordView.as_view(),
         name='teachers_list'),

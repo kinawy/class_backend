@@ -28,6 +28,27 @@ class TeacherRecordView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error.messages, status=status.HTTP_400_BAD_REQUEST)
 
+class StudentRecordView(APIView):
+
+    # A class based view for creating and fetching teacher records
+
+    def get(self, format=None):
+
+        # Get all the teacher records
+        students = Student.objects.all()
+        serializer = StudentSerializer(students, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+
+        # Create a teacher
+
+        serializer = StudentSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=ValueError):
+            serializer.create(validated_data=request.data)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.error.messages, status=status.HTTP_400_BAD_REQUEST)
+
 class UserRecordView(APIView):
 
     # A class based view for creating and fetching teacher records
