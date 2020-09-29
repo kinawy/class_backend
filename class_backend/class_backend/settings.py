@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders', 
     'main_app',
-    # 'main_app.apps.MainAppConfig',
 ]
 
 REST_FRAMEWORK = {
@@ -135,8 +134,10 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# CORS_ORIGIN_ALLOW_ALL = True
+
 CORS_ORIGIN_WHITELIST = [
-     'https://localhost:3000'
+     'http://localhost:3000'
  ]
 
 AUTH_USER_MODEL = 'main_app.User'
