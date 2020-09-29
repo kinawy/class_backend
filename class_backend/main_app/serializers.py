@@ -8,6 +8,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'first_name', 'last_name', 'email', 'is_teacher', 'password')
 
+
+class UsersSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name', 'email', 'is_teacher', 'password')
+
     def create(self, validated_data):
         password = validated_data.pop('password', None)
         instance = self.Meta.model(**validated_data)
@@ -46,4 +53,14 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = ('id', 'user')
 
+class ClassroomSerializer(serializers.ModelSerializer):
 
+    teacher = TeacherSerializer(required=True)
+
+    class Meta:
+        model = Classroom
+        fields = ('id', 'name', 'gradelevel', 'teacher')
+
+    def create(self, validated_data):
+        instance = self.Meta.model(**validated_data)
+        Classroom.objects.create(classroom=instance)
