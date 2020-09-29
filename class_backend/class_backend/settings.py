@@ -39,13 +39,19 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders', 
-    'class',
+    'main_app',
+    # 'main_app.apps.MainAppConfig',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
-    ]
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
 }
 
 MIDDLEWARE = [
@@ -133,4 +139,4 @@ CORS_ORIGIN_WHITELIST = [
      'https://localhost:3000'
  ]
 
-AUTH_USER_MODEL = 'class.User'
+AUTH_USER_MODEL = 'main_app.User'
