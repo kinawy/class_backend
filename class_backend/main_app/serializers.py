@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
             Teacher.objects.create(user=instance)
         else:
             Student.objects.create(user=instance)
+        print(instance)
         return instance
 
     def update(self, instance, validated_data):

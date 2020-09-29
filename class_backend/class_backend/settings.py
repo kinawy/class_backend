@@ -137,7 +137,7 @@ STATIC_URL = '/static/'
 # CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = [
-     'https://localhost:3000'
+     'http://localhost:3000'
  ]
 
 AUTH_USER_MODEL = 'main_app.User'

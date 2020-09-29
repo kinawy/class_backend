@@ -29,7 +29,8 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls',
                               namespace='rest_framework')),
-    path('token-auth/', obtain_jwt_token)
+    # path('signup/', )
+    # path('token-auth/', obtain_jwt_token)
 ]
 
 urlpatterns += format_suffix_patterns([
