@@ -41,7 +41,7 @@ class GradedAssignments(models.Model):
 class Classroom(models.Model):
     name = models.CharField(max_length=50)
     gradeLevel = models.IntegerField()
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(to=Teacher, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name + ' - ' + str(self.gradeLevel) + ' - ' + self.teacher.user.first_name + ' ' + self.teacher.user.last_name
