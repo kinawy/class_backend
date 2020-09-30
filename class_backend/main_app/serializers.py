@@ -56,27 +56,19 @@ class StudentSerializer(serializers.ModelSerializer):
 
 class ClassroomsSerializer(serializers.ModelSerializer):
 
-
     class Meta:
         model = Classroom
-        fields = ('id', 'name', 'gradeLevel', 'teacher')
+        fields = ('id', 'name', 'gradeLevel')
 
     def create(self, validated_data):
-        user = serializers.PrimaryKeyRelatedField(
-            read_only=True, 
-            default=serializers.CurrentUserDefault()
-            )
-        teacher = TeacherSerializer(user, required=True)
+        print(validated_data)
+        # teacher = Teacher.objects.get(pk=teacher_id)
         print('🍖')
         print(validated_data)
         
-        print(user)
-        validated_data['teacher'] = teacher
-        instance = self.Meta.model(**validated_data)
-        instance.save()
-        print(instance)
-        Classroom.objects.create(classroom=instance)
-        return instance
+        classroom = self.Meta.model(**validated_data)
+        classroom.save()
+        return classroom
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():

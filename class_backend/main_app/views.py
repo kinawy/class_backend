@@ -1,11 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_list_or_404, get_object_or_404
 from rest_framework import viewsets, status
 from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer
 from .models import User, Teacher, Student, Classroom
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import serializers
 from django.http import JsonResponse
+from rest_framework import mixins, generics
 
 # Create your views here.
 
@@ -132,8 +134,28 @@ class ClassroomRecordView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class CurrentUserDefault():
+    # """
+    # May be applied as a `default=...` value on a serializer field.
+    # Returns the current user.
+    # """
+    requires_context = True
+
+    def __call__(self, serializer_field):
+        print(serializer_field.context['request'].user)
+        return serializer_field.context['request'].user
+
             
 class ClassroomsRecordView(APIView):
+
+    def get_queryset(self):
+        user = User.objects.all()
+        return user
+
+    def get_object(self, pk):
+        teacher = Teacher.objects.get(pk=pk)
+        return teacher
+
     def get(self, format=None):
         print('🥁')
         # Get all the teacher records
@@ -142,7 +164,15 @@ class ClassroomsRecordView(APIView):
         return Response(serializer.data)
 
     def post(self, request, format=None):
+        user_id = self.request.user.id
+        teacher = self.get_object(pk=user_id)
+        print(self.request.user.id, "Blah")
+        print(request.data)
+        request.data['teacher'] = teacher
         # Create a classroom
+        # request.data['teacher'] = self.request.user
+        print("We have made it")
+        print(request)
         serializer = ClassroomsSerializer(data=request.data)
         # print(serializer)
         if serializer.is_valid(raise_exception=ValueError):
