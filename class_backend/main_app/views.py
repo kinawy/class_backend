@@ -135,13 +135,13 @@ class ClassroomRecordView(APIView):
             
 class ClassroomsRecordView(APIView):
     def get(self, format=None):
+        print('🥁')
         # Get all the teacher records
         classrooms = Classroom.objects.all()
         serializer = ClassroomsSerializer(classrooms, many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
-
         # Create a classroom
         serializer = ClassroomsSerializer(data=request.data)
         # print(serializer)
