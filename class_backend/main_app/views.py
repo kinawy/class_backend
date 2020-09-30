@@ -22,7 +22,7 @@ class Login(APIView):
 
     def post(self, request):
         username = request.data.get('username',None)
-        print(username)
+        print(request.data.get('username'))
         password = request.data.get('password',None)
         if username and password:
             
@@ -32,6 +32,7 @@ class Login(APIView):
                 user = UserLoginSerializer(user_obj, many=True)
                 data_list = {}
                 data_list.update(user.data)
+                print(data_list)
                 return Response({"message": "Login Successfully", "data":data_list, "code": 200})
             else:
                 message = "Unable to login with given credentials"
