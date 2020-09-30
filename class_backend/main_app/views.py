@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
 from rest_framework import viewsets, status
-from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer
+from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer
 from .models import User, Teacher, Student, Classroom
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,8 +8,38 @@ from rest_framework.decorators import api_view
 from rest_framework import serializers
 from django.http import JsonResponse
 from rest_framework import mixins, generics
+from rest_framework import permissions, status
 
 # Create your views here.
+
+
+def current_user(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
+
+
+class Login(APIView):
+
+    def post(self, request):
+        username = request.data.get('username',None)
+        print(request.data.get('username'))
+        password = request.data.get('password',None)
+        if username and password:
+            
+            user_obj = User.objects.filter(username=username)
+            print(user_obj)
+            if user_obj.exists() and user_obj.first().check_password(password):
+                user = UserLoginSerializer(user_obj, many=True)
+                data_list = {}
+                data_list.update(user.data)
+                print(data_list)
+                return Response({"message": "Login Successfully", "data":data_list, "code": 200})
+            else:
+                message = "Unable to login with given credentials"
+                return Response({"message": message , "code": 500, 'data': {}} )
+        else:
+            message = "Invalid login details."
+            return Response({"message": message , "code": 500, 'data': {}})
 
 class TeacherRecordView(APIView):
 
@@ -92,6 +122,7 @@ class UserRecordView(APIView):
     
 
 class UsersRecordView(APIView):
+    permission_classes = (permissions.AllowAny,)
 
     # A class based view for creating and fetching teacher records
 
@@ -108,7 +139,7 @@ class UsersRecordView(APIView):
         # print(serializer)
         if serializer.is_valid(raise_exception=ValueError):
             # print(serializer)
-            serializer.create(validated_data=request.data)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 
@@ -134,16 +165,6 @@ class ClassroomRecordView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CurrentUserDefault():
-    # """
-    # May be applied as a `default=...` value on a serializer field.
-    # Returns the current user.
-    # """
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        print(serializer_field.context['request'].user)
-        return serializer_field.context['request'].user
 
             
 class ClassroomsRecordView(APIView):

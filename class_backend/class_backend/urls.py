@@ -20,6 +20,8 @@ from rest_framework import routers
 from django.conf.urls import *
 from rest_framework.urlpatterns import format_suffix_patterns
 from main_app import views
+from django.views.decorators.csrf import csrf_exempt
+
 
 admin.autodiscover()
 router = routers.DefaultRouter()
@@ -28,7 +30,8 @@ router = routers.DefaultRouter()
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls',
-                              namespace='rest_framework')),
+                               namespace='rest_framework')),
+    url(r'^login/', csrf_exempt(views.Login.as_view()))
     # path('signup/', )
     # path('token-auth/', obtain_jwt_token)
 ]

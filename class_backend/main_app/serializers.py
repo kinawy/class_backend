@@ -1,5 +1,6 @@
 from rest_framework import serializers, status
 from django.contrib.auth.hashers import make_password
+from rest_framework_jwt.settings import api_settings
 from .models import User, Teacher, Student, GradedAssignments, Classroom, ClassroomsAssignments, StudentsClassrooms, Assignment
 
 
@@ -9,6 +10,7 @@ class UsersSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_teacher', 'password')
+
 
     def create(self, validated_data):
         password = validated_data.pop('password', None)
@@ -37,7 +39,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'is_teacher', 'password')
-        
+
+
+class UserLoginSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'password')
+
 class TeacherSerializer(serializers.ModelSerializer):
 
     user = UserSerializer(required=True)
