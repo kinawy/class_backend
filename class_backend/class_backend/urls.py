@@ -28,7 +28,9 @@ router = routers.DefaultRouter()
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls',
-                              namespace='rest_framework')),
+                               namespace='rest_framework')),
+    path('current_user/', views.current_user),
+    path('users/', views.UsersRecordView.as_view())
     # path('signup/', )
     # path('token-auth/', obtain_jwt_token)
 ]

@@ -8,8 +8,12 @@ from rest_framework.decorators import api_view
 from rest_framework import serializers
 from django.http import JsonResponse
 from rest_framework import mixins, generics
+from rest_framework import permissions, status
 
 # Create your views here.
+def current_user(request):
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 
 class TeacherRecordView(APIView):
 
@@ -92,6 +96,7 @@ class UserRecordView(APIView):
     
 
 class UsersRecordView(APIView):
+    permission_classes = (permissions.AllowAny,)
 
     # A class based view for creating and fetching teacher records
 
@@ -108,7 +113,7 @@ class UsersRecordView(APIView):
         # print(serializer)
         if serializer.is_valid(raise_exception=ValueError):
             # print(serializer)
-            serializer.create(validated_data=request.data)
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 
@@ -134,16 +139,6 @@ class ClassroomRecordView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class CurrentUserDefault():
-    # """
-    # May be applied as a `default=...` value on a serializer field.
-    # Returns the current user.
-    # """
-    requires_context = True
-
-    def __call__(self, serializer_field):
-        print(serializer_field.context['request'].user)
-        return serializer_field.context['request'].user
 
             
 class ClassroomsRecordView(APIView):
