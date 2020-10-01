@@ -58,7 +58,8 @@ class Signup(APIView):
 
 
 class TeacherRecordView(APIView):
-
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     # A class based view for creating and fetching teacher records
 
     def get(self, format=None):
@@ -80,7 +81,8 @@ class TeacherRecordView(APIView):
 
 
 class StudentRecordView(APIView):
-
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     # A class based view for creating and fetching student records
 
     def get(self, format=None):
@@ -102,6 +104,8 @@ class StudentRecordView(APIView):
 
 
 class UserRecordView(APIView):
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -183,42 +187,42 @@ class ClassroomsRecordView(APIView):
         user = User.objects.all()
         return user
 
-    def get_object(self, pk):
-        teacher = Teacher.objects.get(pk=pk)
+    def get_object(self, userId):
+        teacher = Teacher.objects.get(user=userId)
         return teacher
 
     def get(self, request, format=None):
         print('🥁')
         if request.user.is_teacher == True:
             # Get all the teacher records
-            classrooms = Classroom.objects.all()
-            serializer = ClassroomsSerializer(classrooms, many=True)
+            teacher = self.get_object(request.user.id)
+            classrooms = Classroom.objects.filter(teacher=teacher.id)
+            serializer = ClassroomSerializer(classrooms, many=True)
             return Response(serializer.data)
-        return Response("Not Authorized")
+        else:
+            return Response("Not Authorized")
 
     def post(self, request, format=None):
-        user_id = self.request.user.id
-        teacher = self.get_object(pk=user_id)
-        print(self.request.user.id, "Blah")
-        print(request.data)
-        request.data['teacher'] = teacher
-        # Create a classroom
-        # request.data['teacher'] = self.request.user
-        print("We have made it")
-        print(request)
-        serializer = ClassroomsSerializer(data=request.data)
-        # print(serializer)
-        if serializer.is_valid(raise_exception=ValueError):
+        if request.user.is_teacher:
+            user_id = request.user.id
+            teacher = self.get_object(user_id)
+            print(self.request.user.id, "Blah")
+            request.data['teacher'] = teacher
+            # Create a classroom
+            serializer = ClassroomsSerializer(data=request.data)
             # print(serializer)
-            serializer.create(validated_data=request.data)
-            print(request.data)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+            if serializer.is_valid(raise_exception=ValueError):
+                # print(serializer)
+                serializer.create(validated_data=request.data)
+                print(request.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+        return Response('You a bad bad boy... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
 
 
 class HelloView(APIView):
     authentication_classes = [authentication.JWTAuthentication]
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [permissions.IsAuthenticated]
     model = User
     serializer_class = UserSerializer
 
