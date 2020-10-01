@@ -1,14 +1,13 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, serializers, authentication, permissions, mixins, generics
 from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer
 from .models import User, Teacher, Student, Classroom
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from rest_framework import serializers
 from django.http import JsonResponse
-from rest_framework import mixins, generics
-from rest_framework import permissions, status
+
 
 # Create your views here.
 
@@ -21,25 +20,40 @@ def current_user(request):
 class Login(APIView):
 
     def post(self, request):
-        username = request.data.get('username',None)
+        username = request.data.get('username', None)
         print(request.data.get('username'))
-        password = request.data.get('password',None)
+        password = request.data.get('password', None)
         if username and password:
-            
+
             user_obj = User.objects.filter(username=username)
-            print(user_obj)
+            print(user_obj.filter(username=username))
             if user_obj.exists() and user_obj.first().check_password(password):
                 user = UserLoginSerializer(user_obj, many=True)
                 data_list = {}
                 data_list.update(user.data)
-                print(data_list)
-                return Response({"message": "Login Successfully", "data":data_list, "code": 200})
+                # print(data_list)
+                return Response({"message": "Login Successfully", "data": data_list, "code": 200})
             else:
                 message = "Unable to login with given credentials"
-                return Response({"message": message , "code": 500, 'data': {}} )
+                return Response({"message": message, "code": 500, 'data': {}})
         else:
             message = "Invalid login details."
-            return Response({"message": message , "code": 500, 'data': {}})
+            return Response({"message": message, "code": 500, 'data': {}})
+
+
+class Signup(APIView):
+
+    def post(self, request, format=None):
+
+        # Create a teacher
+        serializer = UsersSerializer(data=request.data)
+        # print(serializer)
+        if serializer.is_valid(raise_exception=ValueError):
+            # print(serializer)
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+
 
 class TeacherRecordView(APIView):
 
@@ -62,6 +76,7 @@ class TeacherRecordView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 
+
 class StudentRecordView(APIView):
 
     # A class based view for creating and fetching student records
@@ -82,6 +97,7 @@ class StudentRecordView(APIView):
             serializer.create(validated_data=request.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserRecordView(APIView):
     queryset = User.objects.all()
@@ -119,11 +135,10 @@ class UserRecordView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    
 
 class UsersRecordView(APIView):
-    permission_classes = (permissions.AllowAny,)
-
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAdminUser]
     # A class based view for creating and fetching teacher records
 
     def get(self, format=None):
@@ -132,18 +147,10 @@ class UsersRecordView(APIView):
         serializer = UsersSerializer(users, many=True)
         return Response(serializer.data)
 
-    def post(self, request, format=None):
-
-        # Create a teacher
-        serializer = UsersSerializer(data=request.data)
-        # print(serializer)
-        if serializer.is_valid(raise_exception=ValueError):
-            # print(serializer)
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
 
 class ClassroomRecordView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, pk):
         try:
@@ -166,8 +173,9 @@ class ClassroomRecordView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-            
 class ClassroomsRecordView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = User.objects.all()
@@ -177,12 +185,14 @@ class ClassroomsRecordView(APIView):
         teacher = Teacher.objects.get(pk=pk)
         return teacher
 
-    def get(self, format=None):
+    def get(self, request, format=None):
         print('🥁')
-        # Get all the teacher records
-        classrooms = Classroom.objects.all()
-        serializer = ClassroomsSerializer(classrooms, many=True)
-        return Response(serializer.data)
+        if request.user.is_teacher == True:
+            # Get all the teacher records
+            classrooms = Classroom.objects.all()
+            serializer = ClassroomsSerializer(classrooms, many=True)
+            return Response(serializer.data)
+        return Response("Not Authorized")
 
     def post(self, request, format=None):
         user_id = self.request.user.id
@@ -202,3 +212,18 @@ class ClassroomsRecordView(APIView):
             print(request.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+
+
+class HelloView(APIView):
+    authentication_classes = [authentication.TokenAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
+    model = User
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        if request.user.is_teacher:
+            return Response("Hello teacher")
+
+        return JsonResponse({
+            "errors": ["You're not a teacher.", "Batman will always be a student."]
+        }, status=status.HTTP_401_UNAUTHORIZED)
