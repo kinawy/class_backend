@@ -162,6 +162,8 @@ class ClassroomRecordView(APIView):
 
     def put(self, request, pk, format=None):
         classroom = self.get_object(pk)
+        teacher = Teacher.objects.get(user=request.user.id)
+        request.data['teacher'] = teacher.id
         serializer = ClassroomsSerializer(classroom, data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -196,11 +198,13 @@ class ClassroomsRecordView(APIView):
         if request.user.is_teacher:
             user_id = request.user.id
             teacher = self.get_object(user_id)
-            print(self.request.user.id, "Blah")
-            request.data['teacher'] = teacher
+            print(request.user.id)
+            print(teacher)
+            request.data['teacher'] = teacher.id
+            print(request.data['teacher'])
             # Create a classroom
             serializer = ClassroomsSerializer(data=request.data)
-            # print(serializer)
+            print(serializer, "This is the serializer")
             if serializer.is_valid(raise_exception=ValueError):
                 # print(serializer)
                 serializer.create(validated_data=request.data)

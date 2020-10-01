@@ -73,11 +73,13 @@ class ClassroomsSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         print(validated_data)
-        # teacher = Teacher.objects.get(pk=teacher_id)
+        get_teacher = validated_data.pop('teacher')
+        teacher = Teacher.objects.get(pk=get_teacher)
         print('🍖')
         print(validated_data)
         
         classroom = self.Meta.model(**validated_data)
+        classroom.teacher = teacher
         classroom.save()
         return classroom
 
