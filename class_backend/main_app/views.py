@@ -282,7 +282,7 @@ class AssignmentsRecordView(APIView):
                 print(request.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
-        return Response('You a bad bad boy... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
+        return Response('You a bad bad user... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
 
 
 
