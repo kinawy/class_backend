@@ -126,18 +126,7 @@ class UserRecordView(APIView):
         user = self.get_object(pk)
         serializer = UsersSerializer(user, data=request.data)
         if serializer.is_valid():
-
-            email = request.data.get("email", None)
-            first_name = request.data.get('first_name', None)
-            last_name = request.data.get('last_name', None)
-            username = request.data.get('username', None)
-            password = request.data.get('password', None)
-
-            user.email = email
-            user.first_name = first_name
-            user.last_name = last_name
-            user.username = username
-            user.password = password
+            serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -175,6 +164,7 @@ class ClassroomRecordView(APIView):
         classroom = self.get_object(pk)
         serializer = ClassroomsSerializer(classroom, data=request.data)
         if serializer.is_valid():
+            serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
