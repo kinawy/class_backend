@@ -227,8 +227,12 @@ class AssignmentRecordView(APIView):
         return JsonResponse(serializer.data, safe=False)
 
     def put(self, request, pk, format=None):
-        classroom = self.get_object(pk)
-        serializer = ClassroomsSerializer(classroom, data=request.data)
+        assignment = self.get_object(pk)
+        print(request.user.id)
+        teacher = Teacher.objects.get(user=request.user.id)
+        print(teacher.id)
+        request.data['teacher'] = teacher.id
+        serializer = AssignmentsSerializer(assignment, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

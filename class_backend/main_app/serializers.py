@@ -121,4 +121,5 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Assignment
-        fields = ('id', 'name', 'description', 'url', 'teacher')
+        fields = ('id', 'name', 'description', 'url')
+
