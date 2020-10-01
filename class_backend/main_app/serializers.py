@@ -69,7 +69,7 @@ class ClassroomsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Classroom
-        fields = ('id', 'name', 'gradeLevel')
+        fields = ('id', 'name', 'gradeLevel', 'teacher')
 
     def create(self, validated_data):
         print(validated_data)
@@ -92,3 +92,33 @@ class ClassroomSerializer(serializers.ModelSerializer):
     class Meta:
         model = Classroom
         fields = ('id', 'name', 'gradeLevel', 'teacher')
+
+class AssignmentsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Assignment
+        fields = ('id', 'name', 'description', 'url', 'teacher')
+
+    def create(self, validated_data):
+        get_teacher = validated_data.pop('teacher')
+        teacher = Teacher.objects.get(pk=get_teacher)
+        print('🍖')
+        print(teacher)
+        print(validated_data)
+        
+        assignment = self.Meta.model(**validated_data)
+        assignment.teacher = teacher
+        assignment.save()
+        return assignment
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+class AssignmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Assignment
+        fields = ('id', 'name', 'description', 'url', 'teacher')
