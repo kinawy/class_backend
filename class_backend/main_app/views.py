@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
-from rest_framework import viewsets, status, serializers, authentication, permissions, mixins, generics
+from rest_framework import viewsets, status, serializers, permissions, mixins, generics
 from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer
 from .models import User, Teacher, Student, Classroom
 from rest_framework.permissions import IsAuthenticated
@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
+from rest_framework_simplejwt import authentication
+
 
 
 # Create your views here.
@@ -137,7 +139,7 @@ class UserRecordView(APIView):
 
 
 class UsersRecordView(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
+    authentication_classes = [authentication.JWTAuthentication]
     permission_classes = [permissions.IsAdminUser]
     # A class based view for creating and fetching teacher records
 
@@ -149,7 +151,7 @@ class UsersRecordView(APIView):
 
 
 class ClassroomRecordView(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
+    authentication_classes = [authentication.JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self, pk):
@@ -174,7 +176,7 @@ class ClassroomRecordView(APIView):
 
 
 class ClassroomsRecordView(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
+    authentication_classes = [authentication.JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -215,8 +217,8 @@ class ClassroomsRecordView(APIView):
 
 
 class HelloView(APIView):
-    authentication_classes = [authentication.TokenAuthentication]
-    permission_classes = [permissions.IsAuthenticated]
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = (IsAuthenticated,)
     model = User
     serializer_class = UserSerializer
 
