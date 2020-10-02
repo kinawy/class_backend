@@ -330,6 +330,25 @@ class ClassroomsAssignmentsRecordView(APIView):
     authentication_classes = [authentication.JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, format=None):
+        if request.user.is_teacher == True:
+        
+            assignment = Assignment.objects.get(id=request.data['assignment'])
+            print(request.data)
+            
+            print(assignment)
+            
+            all_the_classrooms_associated_with_an_assignment = Classroom.objects.filter(id__in=ClassroomsAssignments.objects.filter(assignment=assignment))
+            print(all_the_classrooms_associated_with_an_assignment, "We are here in get for single class assignments for student")
+            
+            # students_classrooms = Classroom.objects.filter(id__in=students_classes)
+            # print(students_classrooms)
+            
+            serializer = ClassroomsSerializer(all_the_classrooms_associated_with_an_assignment, many=True)
+            print(serializer.data)
+            return Response(serializer.data)
+    
+
 
     def post(self, request, format=None):
         if request.user.is_teacher:
