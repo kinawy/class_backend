@@ -334,16 +334,10 @@ class ClassroomsAssignmentsRecordView(APIView):
         print('request is: ', request.data)
         if request.user.is_teacher == True:
         
-            assignment = Assignment.objects.get(id=self.kwargs.get('pk'))
-            print(request.data)
-            
-            print(assignment)
-            
-            all_the_classrooms_associated_with_an_assignment = Classroom.objects.filter(id__in=ClassroomsAssignments.objects.filter(assignment=assignment))
+            classObjects = ClassroomsAssignments.objects.filter(assignment=pk).values('classroom_id')
+            print('☂︎', classObjects)
+            all_the_classrooms_associated_with_an_assignment = Classroom.objects.filter(id__in=classObjects)
             print(all_the_classrooms_associated_with_an_assignment, "We are here in get for single class assignments for student")
-            
-            # students_classrooms = Classroom.objects.filter(id__in=students_classes)
-            # print(students_classrooms)
             
             serializer = ClassroomsSerializer(all_the_classrooms_associated_with_an_assignment, many=True)
             print(serializer.data)
