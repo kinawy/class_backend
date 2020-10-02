@@ -60,4 +60,7 @@ urlpatterns += format_suffix_patterns([
     url(r'^api/assignments/$',
         views.AssignmentsRecordView.as_view(),
         name='assignments'),
+    url(r'^api/students-classrooms/$',
+        views.StudentsClassroomsRecordView.as_view(),
+        name='assignments'),
 ])

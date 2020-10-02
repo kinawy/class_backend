@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
 from rest_framework import viewsets, status, serializers, permissions, mixins, generics
-from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer, AssignmentSerializer, AssignmentsSerializer
-from .models import User, Teacher, Student, Classroom, Assignment
+from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer, AssignmentSerializer, AssignmentsSerializer, StudentsClassroomsSerializer
+from .models import User, Teacher, Student, Classroom, Assignment, StudentsClassrooms
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -192,7 +192,22 @@ class ClassroomsRecordView(APIView):
             serializer = ClassroomSerializer(classrooms, many=True)
             return Response(serializer.data)
         else:
-            return Response("Not Authorized")
+            print(request.user.id)
+            print('🥁')
+                # Get all the teacher records
+
+            student = Student.objects.get(user=request.user.id)
+            # students_classes = Classroom.objects.get(student=student.id)
+            # print(students_classes.classroom)
+            print(student.id)
+            students_classes = StudentsClassrooms.objects.filter(student=student.id)
+            print(students_classes)
+            
+            students_classrooms = Classroom.objects.filter(id=students_classes[0].id)
+            print(students_classrooms)
+            
+            serializer = ClassroomsSerializer(students_classrooms, many=True)
+            return Response(serializer.data)
 
     def post(self, request, format=None):
         if request.user.is_teacher:
@@ -278,6 +293,31 @@ class AssignmentsRecordView(APIView):
             # print(serializer)
             if serializer.is_valid(raise_exception=ValueError):
                 # print(serializer)
+                serializer.create(validated_data=request.data)
+                print(request.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+        return Response('You a bad bad user... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
+
+
+class StudentsClassroomsRecordView(APIView):
+
+    def get_queryset(self):
+        classroom = Classroom.objects.all()
+        return classroom
+    
+    # def get(self, request, format=None):
+        
+
+    
+    
+    def post(self, request, format=None):
+        if request.user.is_teacher:
+            print('we are here')
+            serializer = StudentsClassroomsSerializer(data=request.data)
+
+            if serializer.is_valid(raise_exception=ValueError):
+                print('we are here22')
                 serializer.create(validated_data=request.data)
                 print(request.data)
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
