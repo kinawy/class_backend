@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
 from rest_framework import viewsets, status, serializers, permissions, mixins, generics
-from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer, AssignmentSerializer, AssignmentsSerializer, StudentsClassroomsSerializer
-from .models import User, Teacher, Student, Classroom, Assignment, StudentsClassrooms
+from .serializers import UserSerializer, UsersSerializer, TeacherSerializer, StudentSerializer, ClassroomSerializer, ClassroomsSerializer, UserLoginSerializer, AssignmentSerializer, AssignmentsSerializer, StudentsClassroomsSerializer, ClassroomsAssignmentsSerializer
+from .models import User, Teacher, Student, Classroom, Assignment, StudentsClassrooms, ClassroomsAssignments
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -301,6 +301,8 @@ class AssignmentsRecordView(APIView):
 
 
 class StudentsClassroomsRecordView(APIView):
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         classroom = Classroom.objects.all()
@@ -324,11 +326,46 @@ class StudentsClassroomsRecordView(APIView):
             return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
         return Response('You a bad bad user... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
 
+class ClassroomsAssignmentsRecordView(APIView):
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request, format=None):
+        if request.user.is_teacher == False:
+            student = Student.objects.get(user=request.user.id)
+            classroom = Classroom.objects.get(id=request.data['classroom'])
+            print(request.data)
+            # students_classrooms = StudentsClassrooms.objects.filter(student=student)
+            # print(students_classrooms)
+            print(classroom)
+            print(student)
+            # students_classes = Classroom.objects.get(student=student.id)
+            # print(students_classes.classroom)
+            print(student.id)
+            # one_classrooms_assignments_for_one_special_student = ClassroomsAssignments.objects.filter(classroom=classroom)
+            # assignments = Assignment.objects.filter(id__in=one_classrooms_assignments_for_one_special_student)
+            one_classrooms_assignments_for_one_special_student = Assignment.objects.filter(id__in=ClassroomsAssignments.objects.filter(classroom=classroom))
+            print(one_classrooms_assignments_for_one_special_student, "We are here in get for single class assignments for student")
+            
+            # students_classrooms = Classroom.objects.filter(id__in=students_classes)
+            # print(students_classrooms)
+            
+            serializer = AssignmentsSerializer(one_classrooms_assignments_for_one_special_student, many=True)
+            print(serializer.data)
+            return Response(serializer.data)
 
+    def post(self, request, format=None):
+        if request.user.is_teacher:
+            print('we are here')
+            serializer = ClassroomsAssignmentsSerializer(data=request.data)
 
-
-
+            if serializer.is_valid(raise_exception=ValueError):
+                print('we are here 22')
+                serializer.create(validated_data=request.data)
+                print(request.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
+        return Response('You a bad bad user... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
 
 class HelloView(APIView):
     authentication_classes = [authentication.JWTAuthentication]

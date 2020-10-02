@@ -148,7 +148,38 @@ class StudentsClassroomsSerializer(serializers.ModelSerializer):
         students_classrooms.classroom = classroom
         students_classrooms.save()
         
-        return StudentsClassrooms
+        return students_classrooms
+
+    def update(self, instance, validated_data):
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        return instance
+
+class ClassroomsAssignmentsSerializer(serializers.ModelSerializer):
+
+     
+    class Meta:
+         model = ClassroomsAssignments
+         fields = ('id', 'classroom', 'assignment')
+
+
+    def create(self, validated_data):
+        get_assignment = validated_data.pop('assignment')
+        get_classroom = validated_data.pop('classroom')
+        assignment = Assignment.objects.get(pk=get_assignment)
+        classroom = Classroom.objects.get(pk=get_classroom)
+        print('🍖')
+        print(assignment)
+        print(classroom)
+        print(validated_data)
+        
+        classrooms_assignments = self.Meta.model(**validated_data)
+        classrooms_assignments.assignment = assignment
+        classrooms_assignments.classroom = classroom
+        classrooms_assignments.save()
+        
+        return classrooms_assignments
 
     def update(self, instance, validated_data):
         for attr, value in validated_data.items():
