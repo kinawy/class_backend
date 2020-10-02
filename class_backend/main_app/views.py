@@ -330,10 +330,11 @@ class ClassroomsAssignmentsRecordView(APIView):
     authentication_classes = [authentication.JWTAuthentication]
     permission_classes = [permissions.IsAuthenticated]
 
-    def get(self, request, format=None):
+    def get(self, request, pk, format=None):
+        print('request is: ', request.data)
         if request.user.is_teacher == True:
         
-            assignment = Assignment.objects.get(id=request.data['assignment'])
+            assignment = Assignment.objects.get(id=self.kwargs.get('pk'))
             print(request.data)
             
             print(assignment)
@@ -348,7 +349,9 @@ class ClassroomsAssignmentsRecordView(APIView):
             print(serializer.data)
             return Response(serializer.data)
     
-
+class CreateClassroomsAssignmentsView(APIView):
+    authentication_classes = [authentication.JWTAuthentication]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, format=None):
         if request.user.is_teacher:
