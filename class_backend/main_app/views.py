@@ -177,7 +177,7 @@ class ClassroomsRecordView(APIView):
 
     def get_queryset(self):
         classrooms = Classroom.objects.all()
-        return user
+        return classrooms
 
     def get_object(self, userId):
         teacher = Teacher.objects.get(user=userId)
@@ -306,12 +306,6 @@ class StudentsClassroomsRecordView(APIView):
 
     def get_queryset(self):
         classroom = Classroom.objects.all()
-        return classroom
-    
-    # def get(self, request, format=None):
-        
-
-    
     
     def post(self, request, format=None):
         if request.user.is_teacher:
@@ -325,6 +319,21 @@ class StudentsClassroomsRecordView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.error_messages, status=status.HTTP_400_BAD_REQUEST)
         return Response('You a bad bad user... NOT Teacher', status=status.HTTP_401_UNAUTHORIZED)
+
+class StudentsInClassrooms(APIView):
+    
+    def get(self, request, pk, format=None):
+        print('request is: ', request.data)
+        if request.user.is_teacher == True:
+        
+            classObjects = StudentsClassrooms.objects.filter(classroom=pk).values('student_id')
+            print('☂︎', classObjects)
+            all_the_students_associated_with_a_class = Student.objects.filter(id__in=classObjects)
+            print(all_the_students_associated_with_a_class, "We are here in get for single class assignments for student")
+            
+            serializer = StudentSerializer(all_the_students_associated_with_a_class, many=True)
+            print(serializer.data)
+            return Response(serializer.data)
 
 class ClassroomsAssignmentsRecordView(APIView):
     authentication_classes = [authentication.JWTAuthentication]
