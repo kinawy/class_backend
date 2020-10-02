@@ -30,7 +30,8 @@ router = routers.DefaultRouter()
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^api/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
-    url(r'^login/', jwt_views.TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url(r'^login/', jwt_views.TokenObtainPairView.as_view(),
+        name='token_obtain_pair'),
     url(r'^hello/', views.HelloView.as_view(), name="hello"),
     url(r'^signup/', views.Signup.as_view())
 ]
@@ -62,5 +63,8 @@ urlpatterns += format_suffix_patterns([
         name='assignments'),
     url(r'^api/students-classrooms/$',
         views.StudentsClassroomsRecordView.as_view(),
+        name='assignments'),
+    url(r'^api/classrooms-assignments/$',
+        views.ClassroomsAssignmentsRecordView.as_view(),
         name='assignments'),
 ])
