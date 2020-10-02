@@ -67,4 +67,8 @@ urlpatterns += format_suffix_patterns([
     url(r'^api/classrooms-assignments/$',
         views.ClassroomsAssignmentsRecordView.as_view(),
         name='assignments'),
+    url(r'^api/classrooms-assignments-modal/$',
+        views.SingleClassesAssignmentsView.as_view(),
+        name='assignments'),
+
 ])
