@@ -200,10 +200,10 @@ class ClassroomsRecordView(APIView):
             # students_classes = Classroom.objects.get(student=student.id)
             # print(students_classes.classroom)
             print(student.id)
-            students_classes = StudentsClassrooms.objects.filter(student=student.id)
+            students_classes = StudentsClassrooms.objects.filter(student=student)
             print(students_classes)
             
-            students_classrooms = Classroom.objects.filter(id=students_classes[0].id)
+            students_classrooms = Classroom.objects.filter(id=students_classes)
             print(students_classrooms)
             
             serializer = ClassroomsSerializer(students_classrooms, many=True)
