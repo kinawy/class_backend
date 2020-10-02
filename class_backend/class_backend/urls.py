@@ -73,5 +73,8 @@ urlpatterns += format_suffix_patterns([
     url(r'^api/classrooms-assignments-modal/$',
         views.SingleClassesAssignmentsView.as_view(),
         name='single-classes-assignments'),
+    url(r'^api/students-classrooms/(?P<pk>[0-9]+)/$',
+        views.StudentsInClassrooms.as_view(),
+        name='students-in-classrooms'),
 
 ])
