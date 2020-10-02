@@ -176,7 +176,7 @@ class ClassroomsRecordView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        classrooms = Classroom.objects.all()
+        classes = Classroom.objects.all()
         return user
 
     def get_object(self, userId):
@@ -200,13 +200,13 @@ class ClassroomsRecordView(APIView):
             # students_classes = Classroom.objects.get(student=student.id)
             # print(students_classes.classroom)
             print(student.id)
-            students_classes = Classroom.objects.filter(studentsclassrooms__in=StudentsClassrooms.objects.filter(student=student))
+            students_classes = StudentsClassrooms.objects.filter(student_id=student.id)
             print(students_classes)
             
-            # students_classrooms = Classroom.objects.filter(id__in=students_classes)
-            # print(students_classrooms)
+            students_classrooms = Classroom.objects.filter(studentsclassrooms__in=students_classes)
+            print(students_classrooms)
             
-            serializer = ClassroomsSerializer(students_classes, many=True)
+            serializer = ClassroomsSerializer(students_classrooms, many=True)
             return Response(serializer.data)
 
     def post(self, request, format=None):
