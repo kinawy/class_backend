@@ -350,12 +350,6 @@ class ClassroomsAssignmentsRecordView(APIView):
             serializer = ClassroomsSerializer(all_the_classrooms_associated_with_an_assignment, many=True)
             print(serializer.data)
             return Response(serializer.data)
-        else:
-            assignmentObjects = ClassroomsAssignments.objects.filter(classroom=pk).values('assignment_id')
-            print('☃︎', classObjects)
-            all_the_assignments_associated_with_a_classroom = Assignment.objects.filter(id__in=assignmentObjects)
-            serializer = AssignmentsSerializer(all_the_assignments_associated_with_a_classroom, many=True)
-
 
     
 class CreateClassroomsAssignmentsView(APIView):
@@ -377,25 +371,12 @@ class CreateClassroomsAssignmentsView(APIView):
 
 class SingleClassesAssignmentsView(APIView):
 
-    def get(self, request, format=None):
+    def get(self, request, pk, format=None):
         if request.user.is_teacher == False:
-            # student = Student.objects.get(user=request.user.id)
-            classroom = Classroom.objects.get(id=request.data['classroom'])
-            print(request.data)
-            # students_classrooms = StudentsClassrooms.objects.filter(student=student)
-            # print(students_classrooms)
+            classroom = Classroom.objects.get(id=pk)
             print(classroom)
-            # print(student)
-            # students_classes = Classroom.objects.get(student=student.id)
-            # print(students_classes.classroom)
-            # print(student.id)
-            # one_classrooms_assignments_for_one_special_student = ClassroomsAssignments.objects.filter(classroom=classroom)
-            # assignments = Assignment.objects.filter(id__in=one_classrooms_assignments_for_one_special_student)
-            one_classrooms_assignments_for_one_special_student = Assignment.objects.filter(id__in=ClassroomsAssignments.objects.filter(classroom=classroom))
+            one_classrooms_assignments_for_one_special_student = Assignment.objects.filter(id__in=ClassroomsAssignments.objects.filter(classroom=classroom).values('assignment_id'))
             print(one_classrooms_assignments_for_one_special_student, "We are here in get for single class assignments for student")
-            
-            # students_classrooms = Classroom.objects.filter(id__in=students_classes)
-            # print(students_classrooms)
             
             serializer = AssignmentsSerializer(one_classrooms_assignments_for_one_special_student, many=True)
             print(serializer.data)
