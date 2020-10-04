@@ -70,7 +70,7 @@ urlpatterns += format_suffix_patterns([
     url(r'^api/create-classrooms-assignments/',
         views.CreateClassroomsAssignmentsView.as_view(),
         name='create-classrooms-assignments'),
-    url(r'^api/classrooms-assignments-modal/$',
+    url(r'^api/classrooms-assignments-modal/(?P<pk>[0-9]+)/$',
         views.SingleClassesAssignmentsView.as_view(),
         name='single-classes-assignments'),
     url(r'^api/students-classrooms/(?P<pk>[0-9]+)/$',
