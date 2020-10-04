@@ -170,6 +170,12 @@ class ClassroomRecordView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+    def delete(self, request, pk, format=None): 
+            classroom = self.get_object(pk)
+            delete_classroom = classroom.delete()
+            return JsonResponse({'message': '{} Classroom was deleted successfully!'.format(delete_classroom)}, status=status.HTTP_204_NO_CONTENT)
+ 
+
 
 class ClassroomsRecordView(APIView):
     authentication_classes = [authentication.JWTAuthentication]
@@ -256,6 +262,11 @@ class AssignmentRecordView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk, format=None): 
+            assignment = self.get_object(pk)
+            delete_assignment = assignment.delete()
+            return JsonResponse({'message': '{} Assignment was deleted successfully!'.format(delete_assignment)}, status=status.HTTP_204_NO_CONTENT)
 
 
 class AssignmentsRecordView(APIView):
