@@ -342,7 +342,6 @@ class ClassroomsAssignmentsRecordView(APIView):
     def get(self, request, pk, format=None):
         print('request is: ', request.data)
         if request.user.is_teacher == True:
-        
             classObjects = ClassroomsAssignments.objects.filter(assignment=pk).values('classroom_id')
             print('☂︎', classObjects)
             all_the_classrooms_associated_with_an_assignment = Classroom.objects.filter(id__in=classObjects)
@@ -351,6 +350,13 @@ class ClassroomsAssignmentsRecordView(APIView):
             serializer = ClassroomsSerializer(all_the_classrooms_associated_with_an_assignment, many=True)
             print(serializer.data)
             return Response(serializer.data)
+        else:
+            assignmentObjects = ClassroomsAssignments.objects.filter(classroom=pk).values('assignment_id')
+            print('☃︎', classObjects)
+            all_the_assignments_associated_with_a_classroom = Assignment.objects.filter(id__in=assignmentObjects)
+            serializer = AssignmentsSerializer(all_the_assignments_associated_with_a_classroom, many=True)
+
+
     
 class CreateClassroomsAssignmentsView(APIView):
     authentication_classes = [authentication.JWTAuthentication]
